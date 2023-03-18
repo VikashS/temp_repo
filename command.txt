@@ -1,0 +1,20 @@
+https://airflow.apache.org/docs/apache-airflow/stable/_api/airflow/operators/index.html
+
+https://airflow.apache.org/docs/apache-airflow/2.5.1/docker-compose.yaml
+
+
+
+docker ps
+docker-compose up -d
+localhost:8080
+docker-compose ps
+
+docker-compose down 
+docker-compose up -d
+
+
+special case error docker volume prune--> after -->run docker-compose up -d 
+
+docker exec -it airflow_ws-airflow-scheduler-1 /bin/bash
+airflow tasks test user_processing create_table any_date 
+----------------------------->
