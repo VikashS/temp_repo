@@ -1,0 +1,52 @@
+
+
+
+1> Airflow is open source plateform to programatically develop schedule and orchestrate worflows.
+2> We can easily write python file to describe task to run ans airflow will ensure execution 
+workflows are bind as code so they can be more maintainable vesionable , testable and colaborative
+it also ensure each task interact correctely to each other
+
+give eampple of one flow -- download
+
+Why choose airflow
+
+Extensibility: it can possible to create any task with code with our custom code
+RElability: Airflow ensure that Any task execute correctly also notify stake holder correctly
+Scalable : execution task can scale to any level
+
+
+
+
+Operator: only python know how to download the invoice--- How Airflow know it-- The way the encode the information via operators
+
+operator are python object represent tasks and execute verity of function
+
+Airflow has pre made operator to perform lots of operation
+
+our jon intantiate that operator and plugin into Dag object
+
+Our main task:
+    Create DAG-- Actual pipeline
+	Operator is representation of task
+	inside task Task : Actual instruction need to perform
+	add some order based on dependencies
+
+https://airflow.apache.org/docs/apache-airflow/stable/_api/airflow/operators/index.html
+
+----------------------->
+
+Code overview
+
+
+
+default_args = {
+    "owner": "Vikash",
+    "start_date": datetime(2023,2,1),
+    "retries": 1,
+    "depends_on_past": False,
+    "email_on_failure": False,
+    "email_on_retry": False,
+    "email": "TheVikash@onmail.com",
+    "retries": 1,
+    "retry_delay": timedelta(minutes=5)
+}
