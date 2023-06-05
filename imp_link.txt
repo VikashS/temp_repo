@@ -1,0 +1,3 @@
+spark with airflow
+
+https://medium.com/illumination/how-to-execute-spark-job-using-apache-airflow-b20d95fdf3a4
