@@ -1,0 +1,27 @@
+from pyspark.sql import SparkSession
+from sparkxgb import XGBoostClassificationModel, XGBoostClassifier
+from pyspark.ml.feature import VectorAssembler
+
+# Initialize a Spark session
+spark = SparkSession.builder.appName("XGBoostPrediction").getOrCreate()
+
+# Load the XGBoost model
+model_path = "path/to/your/xgboost/model"  # Update this with the actual path to your XGBoost model
+xgboost_model = XGBoostClassificationModel().load(model_path)
+
+# Load the data for prediction
+data_path = "path/to/your/data"  # Update this with the actual path to your data
+data = spark.read.format("csv").option("header", "true").load(data_path)
+
+# Assuming your features are in columns 'feature1', 'feature2', ..., 'featureN'
+feature_columns = ['feature1', 'feature2', ..., 'featureN']
+
+# Create a VectorAssembler to assemble feature columns into a single vector column
+vector_assembler = VectorAssembler(inputCols=feature_columns, outputCol="features")
+data = vector_assembler.transform(data)
+
+# Make predictions
+predictions = xgboost_model.transform(data)
+
+# Display the predictions
+predictions.select("prediction").show()
