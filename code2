@@ -1,0 +1,48 @@
+import joblib
+import xgboost as xgb
+
+# Assuming you have an XGBoost model
+xgboost_model = xgb.XGBClassifier()  # Replace with your actual XGBoost model
+xgboost_model.fit(X_train, y_train)  # Train the model with your data
+
+# Save the XGBoost model using joblib
+joblib.dump(xgboost_model, 'path/to/your/xgboost_model.joblib')
+
+
+
+  from mleap import sklearn_to_pmml
+from mleap import mleap
+import xgboost as xgb
+
+# Load the XGBoost model using joblib
+xgboost_model = joblib.load('path/to/your/xgboost_model.joblib')
+
+# Convert the XGBoost model to MLeap format
+sklearn_to_pmml(xgboost_model, 'path/to/your/xgboost_model.mleap')
+
+
+from pyspark.sql import SparkSession
+from mleap.pyspark.spark_support import SimpleSparkSerializer
+
+# Initialize a Spark session
+spark = SparkSession.builder.appName("XGBoostPrediction").getOrCreate()
+
+# Load the MLeap model in PySpark
+mleap_model = SimpleSparkSerializer().loadBundle('file:/path/to/your/xgboost_model.mleap')
+
+# Load the data for prediction
+data_path = "path/to/your/data"  # Update this with the actual path to your data
+data = spark.read.format("csv").option("header", "true").load(data_path)
+
+# Assuming your features are in columns 'feature1', 'feature2', ..., 'featureN'
+feature_columns = ['feature1', 'feature2', ..., 'featureN']
+
+# Assemble feature columns into a single vector column
+vector_assembler = VectorAssembler(inputCols=feature_columns, outputCol="features")
+data = vector_assembler.transform(data)
+
+# Make predictions
+predictions = mleap_model.transform(data)
+
+# Display the predictions
+predictions.select("prediction").show()
