@@ -1,0 +1,31 @@
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import udf
+from pyspark.sql.types import DoubleType
+import pickle
+
+# Initialize a Spark session
+spark = SparkSession.builder.appName("RandomForestPrediction").getOrCreate()
+
+# Define the UDF to load the RandomForest model and make predictions
+@udf(returnType=DoubleType())
+def predict_udf(features):
+    # Load the RandomForest model using pickle
+    with open('path/to/your/random_forest_model.pkl', 'rb') as file:
+        rf_model = pickle.load(file)
+
+    # Apply predictions
+    prediction = rf_model.predict([features])[0]
+    return float(prediction)
+
+# Load the data for prediction
+data_path = "path/to/your/data"  # Update this with the actual path to your data
+data = spark.read.format("csv").option("header", "true").load(data_path)
+
+# Assuming your features are in columns 'feature1', 'feature2', ..., 'featureN'
+feature_columns = ['feature1', 'feature2', ..., 'featureN']
+
+# Apply the UDF to make predictions
+predictions = data.withColumn("prediction", predict_udf(data[feature_columns]))
+
+# Display the predictions
+predictions.select("prediction").show()
