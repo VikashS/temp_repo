@@ -1,6 +1,4 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col
-import pandas as pd
 import numpy as np
 import joblib
 
@@ -20,28 +18,18 @@ scikit_rf_model = joblib.load(scikit_model_path)
 # Define the feature columns
 feature_columns = ['col1', 'col2', 'col3', 'col4']  # Replace with your feature column names
 
-# Define a function to predict on a partition
-def predict_partition(iterator):
+# Function to predict on a partition of data
+def predict_partition(rows):
     local_model = joblib.load(scikit_model_path)
-    for chunk in iterator:
-        features = np.array(chunk.select(feature_columns).collect())
-        predictions = local_model.predict(features)
-        for prediction in predictions:
-            yield prediction
+    features = np.array([[row[col] for col in feature_columns] for row in rows])
+    predictions = local_model.predict(features)
+    return predictions.tolist()
 
-# Apply predictions using partition-wise processing
-result_df = data.withColumn(
-    "prediction",
-    col("features").isNull().cast("int") | col("features").isNull().cast("int")
-).withColumn("partition_id", F.spark_partition_id())
+# Apply predictions using mapPartitions
+predictions = data.repartition(100).rdd.mapPartitions(predict_partition)
 
-predictions_rdd = result_df \
-    .rdd \
-    .mapPartitions(predict_partition) \
-    .toDF("prediction")
-
-result_df = result_df.withColumn("row_id", F.monotonically_increasing_id())
-result_df = result_df.join(predictions_rdd, F.expr("row_id = monotonically_increasing_id()"))
+# Combine predictions back to a DataFrame
+result_df = spark.createDataFrame(data.rdd.zip(predictions).map(lambda x: x[0] + (x[1],)), schema=data.schema.add("prediction", "int"))
 
 # Show or further process the result_df DataFrame
 result_df.show()
