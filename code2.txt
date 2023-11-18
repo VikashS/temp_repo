@@ -1,4 +1,6 @@
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import udf
+from pyspark.sql.types import IntegerType
 import numpy as np
 import joblib
 
@@ -18,18 +20,15 @@ scikit_rf_model = joblib.load(scikit_model_path)
 # Define the feature columns
 feature_columns = ['col1', 'col2', 'col3', 'col4']  # Replace with your feature column names
 
-# Function to predict on a partition of data
-def predict_partition(rows):
-    local_model = joblib.load(scikit_model_path)
-    features = np.array([[row[col] for col in feature_columns] for row in rows])
-    predictions = local_model.predict(features)
-    return predictions.tolist()
+# Function to predict using scikit-learn model
+def predict(values):
+    return scikit_rf_model.predict(np.array(values).reshape(1, -1))[0]
 
-# Apply predictions using mapPartitions
-predictions = data.repartition(100).rdd.mapPartitions(predict_partition)
+# Create a UDF for prediction
+predict_udf = udf(predict, IntegerType())
 
-# Combine predictions back to a DataFrame
-result_df = spark.createDataFrame(data.rdd.zip(predictions).map(lambda x: x[0] + (x[1],)), schema=data.schema.add("prediction", "int"))
+# Apply predictions using the UDF
+result_df = data.withColumn("prediction", predict_udf(*feature_columns))
 
 # Show or further process the result_df DataFrame
 result_df.show()
