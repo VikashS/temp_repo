@@ -1,0 +1,50 @@
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
+import pandas as pd
+import numpy as np
+import joblib
+
+# Create a Spark session
+spark = SparkSession.builder.appName("ScikitToPyspark").getOrCreate()
+
+# Path to the saved scikit-learn model
+scikit_model_path = 'path_to_saved_model.pkl'
+
+# Load scikit-learn model
+scikit_rf_model = joblib.load(scikit_model_path)
+
+# Load your data into a PySpark DataFrame (assuming you have a DataFrame named 'data')
+# Replace with your data loading approach
+# data = spark.read.csv('path_to_your_data.csv', header=True, inferSchema=True)
+
+# Define the feature columns
+feature_columns = ['col1', 'col2', 'col3', 'col4']  # Replace with your feature column names
+
+# Define a function to predict on a partition
+def predict_partition(iterator):
+    local_model = joblib.load(scikit_model_path)
+    for chunk in iterator:
+        features = np.array(chunk.select(feature_columns).collect())
+        predictions = local_model.predict(features)
+        for prediction in predictions:
+            yield prediction
+
+# Apply predictions using partition-wise processing
+result_df = data.withColumn(
+    "prediction",
+    col("features").isNull().cast("int") | col("features").isNull().cast("int")
+).withColumn("partition_id", F.spark_partition_id())
+
+predictions_rdd = result_df \
+    .rdd \
+    .mapPartitions(predict_partition) \
+    .toDF("prediction")
+
+result_df = result_df.withColumn("row_id", F.monotonically_increasing_id())
+result_df = result_df.join(predictions_rdd, F.expr("row_id = monotonically_increasing_id()"))
+
+# Show or further process the result_df DataFrame
+result_df.show()
+
+# Stop the Spark session when finished
+spark.stop()
