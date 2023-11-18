@@ -1,6 +1,4 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import udf
-from pyspark.sql.types import IntegerType
 import numpy as np
 import joblib
 
@@ -25,10 +23,10 @@ def predict(values):
     return scikit_rf_model.predict(np.array(values).reshape(1, -1))[0]
 
 # Create a UDF for prediction
-predict_udf = udf(predict, IntegerType())
+predict_udf = F.udf(predict, IntegerType())
 
 # Apply predictions using the UDF
-result_df = data.withColumn("prediction", predict_udf(*feature_columns))
+result_df = data.withColumn("prediction", predict_udf(F.array(*feature_columns)))
 
 # Show or further process the result_df DataFrame
 result_df.show()
