@@ -1,0 +1,35 @@
+from pyspark.ml.classification import RandomForestClassifier
+import pandas as pd
+from pyspark.sql import SparkSession
+from pyspark.ml import PipelineModel
+from pyspark.ml.classification import RandomForestClassificationModel
+import joblib
+
+spark = SparkSession.builder.appName('predict').getOrCreate()
+
+  data = spark.read.csv('/content/drive/MyDrive/colab_notebooks/test_data.csv', sep=',',inferSchema=True, header=True)
+data.show()
+
+  test_data_df=pd.read_csv('/content/drive/MyDrive/colab_notebooks/test_data.csv')
+feature_columns=test_data_df.columns
+labelCol="isfraud"
+feature_columns
+  # Load scikit-learn model
+scikit_model_path="/content/drive/MyDrive/colab_notebooks/rf_cls_model.pkl"
+scikit_rf_model = joblib.load(scikit_model_path)
+
+  # Convert the PySpark DataFrame to a pandas DataFrame
+pandas_df = data.toPandas()
+
+  # Prepare the features for prediction
+features = pandas_df[feature_columns]
+
+  # Make predictions using the scikit-learn model
+predictions = scikit_rf_model.predict(features)
+
+  # Add predictions to the existing pandas DataFrame
+pandas_df['predictions'] = predictions
+# Convert the pandas DataFrame back to a PySpark DataFrame
+data_with_predictions = spark.createDataFrame(pandas_df)
+# Show or do further processing with the data_with_predictions DataFrame
+data_with_predictions.show()
