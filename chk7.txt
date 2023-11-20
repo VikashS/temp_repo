@@ -1,26 +1,35 @@
-import mlflow.pyfunc
+import pandas as pd
 import joblib
+import boto3
+from io import BytesIO
 
-# Define a Python function to load the pickle file
-def load_pickle_as_pyfunc(pickle_path):
-    class PickleModel(mlflow.pyfunc.PythonModel):
+# AWS credentials and S3 bucket details
+aws_access_key_id = 'YOUR_ACCESS_KEY'
+aws_secret_access_key = 'YOUR_SECRET_KEY'
+bucket_name = 'your-s3-bucket'
+key = 'path/to/your/joblib/file.joblib'  # Path to your joblib file in S3
 
-        def load_context(self, context):
-            self.model = joblib.load(pickle_path)
+# Create a session using your AWS credentials
+session = boto3.Session(
+    aws_access_key_id=aws_access_key_id,
+    aws_secret_access_key=aws_secret_access_key
+)
 
-        def predict(self, context, model_input):
-            return self.model.predict(model_input)
-    
-    return PickleModel()
+# Create an S3 client
+s3 = session.client('s3')
 
-# Path to the pickle file
-pickle_file_path = "path/to/your/pickle/model.pkl"
+# Download the joblib file from S3
+response = s3.get_object(Bucket=bucket_name, Key=key)
 
-# Save the pickle file as an MLflow model
-model_uri = "file:///path/to/save/mlflow/model"
-mlflow.pyfunc.save_model(path=model_uri, python_model=load_pickle_as_pyfunc(pickle_file_path))
+# Load the joblib file using joblib
+joblib_file = response['Body'].read()
+loaded_object = joblib.load(BytesIO(joblib_file))
 
-
-
-
-  loaded_model = mlflow.pyfunc.load_model(model_uri)
+# Assuming loaded_object contains a pandas DataFrame
+# Handle the loaded object accordingly
+if isinstance(loaded_object, pd.DataFrame):
+    dataframe = loaded_object
+    # Now you have your DataFrame, and you can work with it as needed
+    print(dataframe.head())
+else:
+    print("Loaded object is not a pandas DataFrame.")
