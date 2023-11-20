@@ -1,0 +1,26 @@
+import mlflow.pyfunc
+import joblib
+
+# Define a Python function to load the pickle file
+def load_pickle_as_pyfunc(pickle_path):
+    class PickleModel(mlflow.pyfunc.PythonModel):
+
+        def load_context(self, context):
+            self.model = joblib.load(pickle_path)
+
+        def predict(self, context, model_input):
+            return self.model.predict(model_input)
+    
+    return PickleModel()
+
+# Path to the pickle file
+pickle_file_path = "path/to/your/pickle/model.pkl"
+
+# Save the pickle file as an MLflow model
+model_uri = "file:///path/to/save/mlflow/model"
+mlflow.pyfunc.save_model(path=model_uri, python_model=load_pickle_as_pyfunc(pickle_file_path))
+
+
+
+
+  loaded_model = mlflow.pyfunc.load_model(model_uri)
