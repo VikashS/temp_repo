@@ -19,3 +19,33 @@ steps:
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'SQLScripts'
+
+
+
+
+
+
+-------
+trigger:
+- master
+
+pool:
+  vmImage: 'windows-latest'
+
+jobs:
+- job: Build
+  steps:
+  - script: |
+      # Your build commands go here
+      # For example, build your application
+
+  - task: UniversalPackages@0
+    displayName: 'Publish Artifact'
+    inputs:
+      command: 'publish'
+      publishDirectory: '$(Build.ArtifactStagingDirectory)'
+      feedsToUse: 'select'
+      vstsFeed: '<Your-Azure-Artifacts-Feed-Name>'
+      vstsFeedPublish: true
+      vstsFeedPackagePublish: true
+
