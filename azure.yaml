@@ -1,0 +1,21 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'windows-latest' # Choose an appropriate image for your SQL Server tools
+
+steps:
+
+- task: CopyFiles@2
+  displayName: 'Copy SQL Script to Artifact Staging Directory'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/sql/'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: SQLScripts'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'SQLScripts'
