@@ -25,7 +25,6 @@ steps:
 
 
 
--------
 trigger:
 - master
 
@@ -37,15 +36,21 @@ jobs:
   steps:
   - script: |
       # Your build commands go here
-      # For example, build your application
+      # For example, generate SQL files
+
+  - task: CopyFiles@2
+    displayName: 'Copy SQL Files'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)/path/to/sql/files'
+      Contents: '*.sql'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/SQLFiles'
 
   - task: UniversalPackages@0
-    displayName: 'Publish Artifact'
+    displayName: 'Publish SQL Files'
     inputs:
       command: 'publish'
-      publishDirectory: '$(Build.ArtifactStagingDirectory)'
+      publishDirectory: '$(Build.ArtifactStagingDirectory)/SQLFiles'
       feedsToUse: 'select'
       vstsFeed: '<Your-Azure-Artifacts-Feed-Name>'
       vstsFeedPublish: true
       vstsFeedPackagePublish: true
-
