@@ -1,86 +1,13 @@
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import udf
-from pyspark.sql.types import DoubleType
-import pickle
+trigger:
+- main
 
-# Initialize a Spark session
-spark = SparkSession.builder.appName("RandomForestPrediction").getOrCreate()
+pool:
+  vmImage: 'windows-latest'
 
-# Define the UDF to load the RandomForest model and make predictions
-@udf(returnType=DoubleType())
-def predict_udf(features):
-    # Load the RandomForest model using pickle
-    with open('path/to/your/random_forest_model.pkl', 'rb') as file:
-        rf_model = pickle.load(file)
-
-    # Apply predictions
-    prediction = rf_model.predict([features])[0]
-    return float(prediction)
-
-# Load the data for prediction
-data_path = "path/to/your/data"  # Update this with the actual path to your data
-data = spark.read.format("csv").option("header", "true").load(data_path)
-
-# Assuming your features are in columns 'feature1', 'feature2', ..., 'featureN'
-feature_columns = ['feature1', 'feature2', ..., 'featureN']
-
-# Apply the UDF to make predictions
-predictions = data.withColumn("prediction", predict_udf(data[feature_columns]))
-
-# Display the predictions
-predictions.select("prediction").show()
-
-
--------------------
-efficient for huge data
--------
-from pyspark.sql import SparkSession
-from pyspark.ml.feature import VectorAssembler
-import pandas as pd
-import numpy as np
-import joblib
-
-# Create a Spark session
-spark = SparkSession.builder.appName("ScikitToPyspark").getOrCreate()
-
-# Path to the saved scikit-learn model
-scikit_model_path = 'path_to_saved_model.pkl'
-
-# Load scikit-learn model
-scikit_rf_model = joblib.load(scikit_model_path)
-
-# Load your data into a PySpark DataFrame (assuming you have a DataFrame named 'data')
-# Replace with your data loading approach
-# data = spark.read.csv('path_to_your_data.csv', header=True, inferSchema=True)
-
-# Define the feature columns
-feature_columns = ['col1', 'col2', 'col3', 'col4']  # Replace with your feature column names
-
-# Create a VectorAssembler for feature transformation
-assembler = VectorAssembler(inputCols=feature_columns, outputCol="features")
-
-# Transform the data using VectorAssembler
-data_transformed = assembler.transform(data)
-
-# Function to make predictions on partitions using scikit-learn model
-def predict_partition(iterator):
-    local_model = joblib.load(scikit_model_path)
-    for chunk in iterator:
-        features = np.array(chunk.features.toArray().tolist())
-        predictions = local_model.predict(features)
-        for prediction in predictions:
-            yield prediction
-
-# Apply predictions using mapPartitions
-predictions_rdd = data_transformed.rdd.mapPartitions(predict_partition)
-
-# Convert RDD of predictions back to a DataFrame
-schema = data_transformed.select("features").schema
-result_df = spark.createDataFrame(predictions_rdd.map(lambda x: (x,)), schema=["prediction"])
-
-# Show or further process the result_df DataFrame
-result_df.show()
-
-# Stop the Spark session when finished
-spark.stop()
-
+jobs:
+- job: RunPowerShellScript
+  steps:
+  - task: PowerShell@2
+    inputs:
+      targetType: 'filePath'
+      filePath: 'path/to/myscript.ps1'
