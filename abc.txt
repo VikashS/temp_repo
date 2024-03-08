@@ -11,3 +11,4 @@ jobs:
     inputs:
       targetType: 'filePath'
       filePath: 'path/to/myscript.ps1'
+Get-ChildItem -Path .\MyProject -Recurse -File | ForEach-Object { $_.FullName }
