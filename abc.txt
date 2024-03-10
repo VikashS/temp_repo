@@ -12,3 +12,7 @@ jobs:
       targetType: 'filePath'
       filePath: 'path/to/myscript.ps1'
 Get-ChildItem -Path .\MyProject -Recurse -File | ForEach-Object { $_.FullName }
+
+https://blog.devgenius.io/mlflow-tutorial-ml-tracking-and-serving-49abd929c8d9
+https://github.com/josejuanmartinez/medium/blob/main/mlflow/mlflow.md
+https://github.com/josejuanmartinez/medium/tree/main
