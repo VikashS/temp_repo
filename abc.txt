@@ -1,18 +1,36 @@
 trigger:
-- main
+- master
 
 pool:
   vmImage: 'windows-latest'
 
-jobs:
-- job: RunPowerShellScript
-  steps:
-  - task: PowerShell@2
-    inputs:
-      targetType: 'filePath'
-      filePath: 'path/to/myscript.ps1'
-Get-ChildItem -Path .\MyProject -Recurse -File | ForEach-Object { $_.FullName }
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '3.1.x'
+    installationPath: $(Agent.ToolsDirectory)/dotnet
 
-https://blog.devgenius.io/mlflow-tutorial-ml-tracking-and-serving-49abd929c8d9
-https://github.com/josejuanmartinez/medium/blob/main/mlflow/mlflow.md
-https://github.com/josejuanmartinez/medium/tree/main
+- script: |
+    # Define your API endpoint URL
+    $apiUrl = "https://example.com/api/resource"
+
+    # Define your username and password for Basic Authentication
+    $username = "your_username"
+    $password = "your_password"
+
+    # Convert the username and password to Base64 for Basic Authentication
+    $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("${username}:${password}")))
+
+    # Define your request payload
+    $payload = @{
+        key1 = "value1"
+        key2 = "value2"
+    } | ConvertTo-Json
+
+    # Make the REST API POST request using cURL with Basic Authentication
+    Invoke-RestMethod -Uri $apiUrl -Method Post -Body $payload -Headers @{
+        "Content-Type" = "application/json"
+        "Authorization" = "Basic $base64AuthInfo"
+    }
+  displayName: 'Call REST API with Basic Authentication'
