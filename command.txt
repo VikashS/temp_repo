@@ -1,20 +1,21 @@
-https://airflow.apache.org/docs/apache-airflow/stable/_api/airflow/operators/index.html
+import tempfile
+import boto3
+import joblib  # Assuming you're using scikit-learn models
 
-https://airflow.apache.org/docs/apache-airflow/2.5.1/docker-compose.yaml
+def save_model_to_s3(model, bucket_name, key):
+  """Saves a model to an S3 bucket.
 
+  Args:
+    model: The model to save.
+    bucket_name: The name of the S3 bucket.
+    key: The S3 key under which to save the model.
+  """
+  s3_client = boto3.client('s3')
+  with tempfile.TemporaryFile() as fp:
+    joblib.dump(model, fp)
+    fp.seek(0)  # Move the pointer to the beginning of the file
+    s3_client.put_object(Body=fp.read(), Bucket=bucket_name, Key=key)
 
-
-docker ps
-docker-compose up -d
-localhost:8080
-docker-compose ps
-
-docker-compose down 
-docker-compose up -d
-
-
-special case error docker volume prune--> after -->run docker-compose up -d 
-
-docker exec -it airflow_ws-airflow-scheduler-1 /bin/bash
-airflow tasks test user_processing create_table any_date 
------------------------------>
+# Example usage
+model = train_your_model()  # Replace with your model training logic
+save_model_to_s3(model, "my-bucket", "model.pkl")
