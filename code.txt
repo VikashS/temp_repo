@@ -1,20 +1,35 @@
-steps:
-- task: UseDotNet@2
-  inputs:
-    packageType: 'sdk'
-    version: '3.1.x'
-    installationPath: $(Agent.ToolsDirectory)/dotnet
+from pyspark.sql import SparkSession
+import os
+import glob
 
-- powershell: |
-    # Define your API endpoint URL
-    $apiUrl = "https://reqres.in/api/users"
+# Step 1: Create a Spark session
+spark = SparkSession.builder.appName("SaveDataFrameToCSV").getOrCreate()
 
-    # Define your request payload
-    $payload = @{
-        name = "vikash"
-        job = "MLE"
-    } | ConvertTo-Json
+# Step 2: Load data into a DataFrame (example with a sample data creation)
+data = [("James", "Smith", "USA", 30),
+        ("Michael", "Rose", "UK", 25),
+        ("Robert", "Williams", "USA", 28),
+        ("Maria", "Jones", "USA", 22)]
+columns = ["firstname", "lastname", "country", "age"]
 
-    # Make the REST API POST request using Invoke-RestMethod
-    Invoke-RestMethod -Uri $apiUrl -Method Post -Body $payload -ContentType "application/json"
-  displayName: 'Call REST API'
+df = spark.createDataFrame(data, columns)
+
+# Step 3: Save the DataFrame to a CSV file
+output_dir = "path/to/save/output_data"
+df.write.csv(output_dir, header=True)
+
+# Step 4: Merge part files into a single CSV file
+merged_file = "path/to/save/merged_output_data.csv"
+
+# Get a list of all part files
+part_files = glob.glob(os.path.join(output_dir, "part-*"))
+
+# Merge part files into a single CSV file
+with open(merged_file, 'w') as outfile:
+    for i, part_file in enumerate(part_files):
+        with open(part_file, 'r') as infile:
+            if i != 0:
+                infile.readline()  # Skip the header for all files except the first
+            outfile.write(infile.read())
+
+print("CSV files merged successfully.")
