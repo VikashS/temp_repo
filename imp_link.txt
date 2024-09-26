@@ -1,3 +1,49 @@
 spark with airflow
 
 https://medium.com/illumination/how-to-execute-spark-job-using-apache-airflow-b20d95fdf3a4
+I'm still getting a lot of questions on how to learn MLOps. It's reading, designing, and coding. Below are 12 awesome repositories that will help you do this. Good luck and have fun!
+
+=====MACHINE LEARNING SYSTEMS DESIGN=====
+
+Designing ML Systems by Chip Huyen
+⭐ 2.2k stars: https://lnkd.in/erjPK3ej
+
+Machine Learning Technical Interviews by Alireza Dirafzoon, PhD
+⭐ 4.4k stars: https://lnkd.in/e9s-akkf
+
+Post-Deployment Data Science by NannyML
+⭐ 1.9k stars: https://lnkd.in/ewfsYmsC
+
+=====COURSES=====
+
+MLOps Coding Course by Médéric HURIER
+⭐ 248 stars: https://lnkd.in/eAebqwar
+
+MLOps Zoomcamp by Alexey Grigorev
+⭐ 11k stars: https://lnkd.in/eUKVRKku
+
+MLOps Course by Goku Mohandas
+⭐ 2.9k stars: https://lnkd.in/eA4rSCcS
+
+=====CODE TEMPLATES=====
+
+Amazon Sagemaker Examples by AWS
+⭐ 10k stars: https://lnkd.in/eGnyYmtg
+
+MLOps Stacks by Databricks
+⭐ 431 stars: https://lnkd.in/esTw8hTt
+
+MLOps Template by Médéric HURIER
+⭐ 622 stars, template explained: https://lnkd.in/epvXD-k4
+⭐ 234 stars, as a cookiecutter: https://lnkd.in/eJHsi24G
+
+=====CURATED LISTS OF LEARNING RESOURCES=====
+
+MLOps Roadmap 2024 by Marvelous MLOps
+⭐ 248 stars: https://lnkd.in/e3EiqYnN
+
+Awesome Product Machine Learning by Ethical ML
+⭐ 17.4k stars: https://lnkd.in/eSiGqjY5
+
+Awesome MLOps by Dr. Larysa Visengeriyeva
+⭐ 12.5k stars: https://lnkd.in/eexGUpTn
